@@ -88,17 +88,17 @@ def main(args):
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
     model = LeNet().to(device)
-    optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
+    # optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
 
-    print('start pre-training')
-    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
-    for epoch in range(1, args.epochs + 1):
-        train(args, model, device, train_loader, optimizer, epoch)
-        test(model, device, test_loader)
-        scheduler.step()
+    # print('start pre-training')
+    # scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+    # for epoch in range(1, args.epochs + 1):
+    #     train(args, model, device, train_loader, optimizer, epoch)
+    #     test(model, device, test_loader)
+    #     scheduler.step()
         
-    torch.save(model.state_dict(), "pretrain_mnist_lenet.pt")
-
+    # torch.save(model.state_dict(), "pretrain_mnist_lenet.pt")
+    model.load_state_dict(torch.load("./pretrain_mnist_lenet.pt"))
     print('start pruning')
     optimizer_finetune = torch.optim.SGD(model.parameters(), lr=0.01)
 
@@ -122,7 +122,7 @@ def main(args):
             best_top1 = top1
             # Export the best model, 'model_path' stores state_dict of the pruned model,
             # mask_path stores mask_dict of the pruned model
-            pruner.export_model(model_path='pruend_mnist_lenet.pt', mask_path='mask_mnist_lenet.pt')
+            pruner.export_model(model_path='pruend95_mnist_lenet.pt', mask_path='mask_mnist_lenet.pt')
 
 if __name__ == '__main__':
      # Training settings
@@ -145,7 +145,7 @@ if __name__ == '__main__':
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
-    parser.add_argument('--sparsity', type=float, default=0.5,
+    parser.add_argument('--sparsity', type=float, default=0.95,
                         help='target overall target sparsity')
     args = parser.parse_args()
 
